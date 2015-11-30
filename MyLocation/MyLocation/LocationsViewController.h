@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  LocationsViewController.h
 //  MyLocation
 //
 //  Created by datdn1 on 11/30/15.
@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
-
+@interface LocationsViewController : UIViewController
 
 @end
-

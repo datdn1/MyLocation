@@ -1,27 +1,31 @@
 //
-//  ViewController.m
+//  CurrentLocationViewController.m
 //  MyLocation
 //
 //  Created by datdn1 on 11/30/15.
 //  Copyright © 2015 datdn1. All rights reserved.
 //
 
-#import "ViewController.h"
+#import "CurrentLocationViewController.h"
 
-@interface ViewController ()
+@interface CurrentLocationViewController ()
 
 @end
 
-@implementation ViewController
+@implementation CurrentLocationViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    // Do any additional setup after loading the view.
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+- (IBAction)getLocation:(id)sender {
+}
+
 
 @end
