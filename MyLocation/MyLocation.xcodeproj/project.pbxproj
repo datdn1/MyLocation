@@ -14,6 +14,7 @@
 		28E17E541C0BF1DF008AB1B5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 28E17E521C0BF1DF008AB1B5 /* LaunchScreen.storyboard */; };
 		28E17E611C0BF97A008AB1B5 /* CurrentLocationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28E17E601C0BF97A008AB1B5 /* CurrentLocationViewController.m */; };
 		28E17E641C0BFD83008AB1B5 /* LocationsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28E17E631C0BFD83008AB1B5 /* LocationsViewController.m */; };
+		28E17E661C0BFF51008AB1B5 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28E17E651C0BFF51008AB1B5 /* CoreLocation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,7 @@
 		28E17E601C0BF97A008AB1B5 /* CurrentLocationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CurrentLocationViewController.m; sourceTree = "<group>"; };
 		28E17E621C0BFD83008AB1B5 /* LocationsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocationsViewController.h; sourceTree = "<group>"; };
 		28E17E631C0BFD83008AB1B5 /* LocationsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocationsViewController.m; sourceTree = "<group>"; };
+		28E17E651C0BFF51008AB1B5 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,6 +38,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				28E17E661C0BFF51008AB1B5 /* CoreLocation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -45,6 +48,7 @@
 		28E17E381C0BF1DF008AB1B5 = {
 			isa = PBXGroup;
 			children = (
+				28E17E651C0BFF51008AB1B5 /* CoreLocation.framework */,
 				28E17E431C0BF1DF008AB1B5 /* MyLocation */,
 				28E17E421C0BF1DF008AB1B5 /* Products */,
 			);
