@@ -31,6 +31,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self updateLocationLabel];
+    [self configureGetLocationButton];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -41,9 +42,18 @@
 // implement delegate of core location to get current location
 // turn on GPS when need fix location
 - (IBAction)getLocation:(id)sender {
+    if (!_updatingLocation) {
+        // start location service
+        _currentLocation = nil;
+        _lastLocationError = nil;
+        [self startLocationManager];
+    }
+    else {
+        [self stopLocationManager];
+    }
     
-    // start location service
-    [self startLocationManager];
+    [self updateLocationLabel];
+    [self configureGetLocationButton];
 }
 
 #pragma mark - CoreLocation delegates
@@ -62,10 +72,12 @@
     _lastLocationError = error;
     
     // reset current location
-    _currentLocation = nil;
+//    _currentLocation = nil;
     
     // view error for user
     [self updateLocationLabel];
+    
+    [self configureGetLocationButton];
 }
 
 -(void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
@@ -91,6 +103,8 @@
         if (_currentLocation.horizontalAccuracy <= _coreLocationManager.desiredAccuracy) {
             NSLog(@"Stop location service");
             [self stopLocationManager];
+            
+            [self configureGetLocationButton];
         }
     }
     
@@ -101,14 +115,13 @@
         self.longLabel.text = [NSString stringWithFormat:@"%.8f", _currentLocation.coordinate.longitude];
         self.latLabel.text = [NSString stringWithFormat:@"%.8f", _currentLocation.coordinate.latitude];
         self.tagLocationButton.hidden = NO;
-        self.messageLabel.text = @"";
+//        self.messageLabel.text = @"";
     }
     else {
         self.latLabel.text = @"";
         self.longLabel.text = @"";
         self.addressLabel.text = @"";
         self.tagLocationButton.hidden = YES;
-//        self.messageLabel.text = @"Press Get My Location to start";
         NSString *statusMessage;
         
         // error case
@@ -134,12 +147,13 @@
         else {
             statusMessage = @"Press the button to start";
         }
+        self.messageLabel.text = statusMessage;
     }
 }
 
 -(void) startLocationManager {
     _coreLocationManager.delegate = self;
-    _coreLocationManager.desiredAccuracy = kCLLocationAccuracyBest;
+    _coreLocationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters;
     
     // enable core location by code
     [_coreLocationManager requestWhenInUseAuthorization];
@@ -156,6 +170,16 @@
         [_coreLocationManager stopUpdatingLocation];
         _coreLocationManager.delegate = nil;
         _updatingLocation = NO;
+    }
+}
+
+-(void) configureGetLocationButton {
+    if (_updatingLocation) {
+        [self.getMyLocationButton setTitle:@"Stop" forState:UIControlStateNormal];
+        
+    }
+    else {
+        [self.getMyLocationButton setTitle:@"Get My Location" forState:UIControlStateNormal];
     }
 }
 
