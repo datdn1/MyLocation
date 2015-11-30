@@ -44,8 +44,6 @@
     
     // start location service
     [self startLocationManager];
-    
-    [_coreLocationManager startUpdatingLocation];
 }
 
 #pragma mark - CoreLocation delegates
@@ -73,13 +71,29 @@
 -(void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
     CLLocation *newLocation = [locations lastObject];
     NSLog(@"New location: %@", newLocation);
-    _currentLocation = newLocation;
     
-    // reset error variable
-    _lastLocationError = nil;
+    if ([newLocation.timestamp timeIntervalSinceNow] < -5.0) {
+        return;
+    }
     
+    if (newLocation.horizontalAccuracy < 0) {
+        return;
+    }
     
-    [self updateLocationLabel];
+    if (_currentLocation == nil || _currentLocation.horizontalAccuracy > newLocation.horizontalAccuracy) {
+        _currentLocation = newLocation;
+        
+        // reset error variable
+        _lastLocationError = nil;
+        
+        [self updateLocationLabel];
+        
+        if (_currentLocation.horizontalAccuracy <= _coreLocationManager.desiredAccuracy) {
+            NSLog(@"Stop location service");
+            [self stopLocationManager];
+        }
+    }
+    
 }
 
 -(void) updateLocationLabel {
@@ -121,8 +135,6 @@
             statusMessage = @"Press the button to start";
         }
     }
- 
-    
 }
 
 -(void) startLocationManager {
@@ -135,6 +147,8 @@
     
     // set updating location flag
     _updatingLocation = YES;
+    
+    [_coreLocationManager startUpdatingLocation];
 }
 
 -(void) stopLocationManager {
