@@ -17,6 +17,8 @@
 {
     CLLocationManager *_coreLocationManager;
     CLLocation *_currentLocation;
+    NSError *_lastLocationError;
+    BOOL _updatingLocation;
 }
 // create location manager when load from storyboard
 -(instancetype) initWithCoder:(NSCoder *)aDecoder {
@@ -25,8 +27,6 @@
     }
     return self;
 }
-
-
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -41,12 +41,9 @@
 // implement delegate of core location to get current location
 // turn on GPS when need fix location
 - (IBAction)getLocation:(id)sender {
-    _coreLocationManager.delegate = self;
-    _coreLocationManager.desiredAccuracy = kCLLocationAccuracyBest;
     
-    // enable core location by code
-    [_coreLocationManager requestWhenInUseAuthorization];
-    [_coreLocationManager requestAlwaysAuthorization];
+    // start location service
+    [self startLocationManager];
     
     [_coreLocationManager startUpdatingLocation];
 }
@@ -54,12 +51,34 @@
 #pragma mark - CoreLocation delegates
 -(void) locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
     NSLog(@"didFailWithError: %@", error);
+    
+    // if location unknown then trying
+    if (error.code == kCLErrorLocationUnknown) {
+        return;
+    }
+    
+    // stop location manager when has other error
+    [self stopLocationManager];
+    
+    // set error varible for update
+    _lastLocationError = error;
+    
+    // reset current location
+    _currentLocation = nil;
+    
+    // view error for user
+    [self updateLocationLabel];
 }
 
 -(void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
     CLLocation *newLocation = [locations lastObject];
     NSLog(@"New location: %@", newLocation);
     _currentLocation = newLocation;
+    
+    // reset error variable
+    _lastLocationError = nil;
+    
+    
     [self updateLocationLabel];
 }
 
@@ -75,10 +94,55 @@
         self.longLabel.text = @"";
         self.addressLabel.text = @"";
         self.tagLocationButton.hidden = YES;
-        self.messageLabel.text = @"Press Get My Location to start";
+//        self.messageLabel.text = @"Press Get My Location to start";
+        NSString *statusMessage;
+        
+        // error case
+        if (_lastLocationError != nil) {
+            // user dined location service
+            if ([_lastLocationError.domain isEqualToString:kCLErrorDomain] && _lastLocationError.code == kCLErrorDenied) {
+                statusMessage = @"Location Services Disabled";
+            }
+            // error when search location from core location
+            else {
+                statusMessage = @"Error Getting Location";
+            }
+        }
+        // location service global disable case
+        else if (![CLLocationManager locationServicesEnabled]) {
+            statusMessage = @"Location Services Disabled";
+        }
+        
+        // searching case
+        else if (_updatingLocation) {
+            statusMessage = @"Searching...";
+        }
+        else {
+            statusMessage = @"Press the button to start";
+        }
     }
  
     
+}
+
+-(void) startLocationManager {
+    _coreLocationManager.delegate = self;
+    _coreLocationManager.desiredAccuracy = kCLLocationAccuracyBest;
+    
+    // enable core location by code
+    [_coreLocationManager requestWhenInUseAuthorization];
+    [_coreLocationManager requestAlwaysAuthorization];
+    
+    // set updating location flag
+    _updatingLocation = YES;
+}
+
+-(void) stopLocationManager {
+    if (_updatingLocation) {
+        [_coreLocationManager stopUpdatingLocation];
+        _coreLocationManager.delegate = nil;
+        _updatingLocation = NO;
+    }
 }
 
 
