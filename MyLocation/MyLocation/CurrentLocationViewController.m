@@ -16,6 +16,7 @@
 @implementation CurrentLocationViewController
 {
     CLLocationManager *_coreLocationManager;
+    CLLocation *_currentLocation;
 }
 // create location manager when load from storyboard
 -(instancetype) initWithCoder:(NSCoder *)aDecoder {
@@ -29,7 +30,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    [self updateLocationLabel];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -58,6 +59,26 @@
 -(void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
     CLLocation *newLocation = [locations lastObject];
     NSLog(@"New location: %@", newLocation);
+    _currentLocation = newLocation;
+    [self updateLocationLabel];
+}
+
+-(void) updateLocationLabel {
+    if (_currentLocation != nil) {
+        self.longLabel.text = [NSString stringWithFormat:@"%.8f", _currentLocation.coordinate.longitude];
+        self.latLabel.text = [NSString stringWithFormat:@"%.8f", _currentLocation.coordinate.latitude];
+        self.tagLocationButton.hidden = NO;
+        self.messageLabel.text = @"";
+    }
+    else {
+        self.latLabel.text = @"";
+        self.longLabel.text = @"";
+        self.addressLabel.text = @"";
+        self.tagLocationButton.hidden = YES;
+        self.messageLabel.text = @"Press Get My Location to start";
+    }
+ 
+    
 }
 
 
