@@ -19,11 +19,18 @@
     CLLocation *_currentLocation;
     NSError *_lastLocationError;
     BOOL _updatingLocation;
+    
+    CLGeocoder *_geocoder;
+    CLPlacemark *_placemark;
+    BOOL _performingReverseGeocoding;
+    NSError *_geocodingError;
 }
 // create location manager when load from storyboard
 -(instancetype) initWithCoder:(NSCoder *)aDecoder {
     if(self = [super initWithCoder:aDecoder]) {
         _coreLocationManager = [[CLLocationManager alloc] init];
+        
+        _geocoder = [[CLGeocoder alloc] init];
     }
     return self;
 }
@@ -46,6 +53,10 @@
         // start location service
         _currentLocation = nil;
         _lastLocationError = nil;
+        
+        _placemark = nil;
+        _geocodingError = nil;
+        
         [self startLocationManager];
     }
     else {
@@ -105,6 +116,27 @@
             [self stopLocationManager];
             
             [self configureGetLocationButton];
+            
+            if (!_performingReverseGeocoding) {
+                NSLog(@"*** Going to geocoding ***");
+                
+                _performingReverseGeocoding = YES;
+                [self updateLocationLabel];
+                
+                [_geocoder reverseGeocodeLocation:_currentLocation completionHandler:^(NSArray<CLPlacemark *> *placemarks, NSError *error) {
+                    NSLog(@"*** Found placemark: %@ error: %@", placemarks, error);
+                    _geocodingError = error;
+                    if (error == nil && placemarks.count > 0) {
+                        _placemark = [placemarks lastObject];
+                    }
+                    else {
+                        _placemark = nil;
+                    }
+                    _performingReverseGeocoding = NO;
+                    [self updateLocationLabel];
+                }];
+            }
+
         }
     }
     
@@ -116,6 +148,19 @@
         self.latLabel.text = [NSString stringWithFormat:@"%.8f", _currentLocation.coordinate.latitude];
         self.tagLocationButton.hidden = NO;
 //        self.messageLabel.text = @"";
+        
+        if (_placemark != nil) {
+            self.addressLabel.text = [self stringFromPlacemark:_placemark];
+        }
+        else if (_geocodingError != nil) {
+            self.addressLabel.text = @"Error Finding Address";
+        }
+        else if (_performingReverseGeocoding) {
+            self.addressLabel.text = @"Searching for Address...";
+        }
+        else {
+            self.addressLabel.text = @"No Address Found";
+        }
     }
     else {
         self.latLabel.text = @"";
@@ -181,6 +226,10 @@
     else {
         [self.getMyLocationButton setTitle:@"Get My Location" forState:UIControlStateNormal];
     }
+}
+
+-(NSString *) stringFromPlacemark:(CLPlacemark *)placemark {
+    return [NSString stringWithFormat:@"%@ %@\n%@ %@ %@", placemark.subThoroughfare, placemark.thoroughfare, placemark.locality, placemark.administrativeArea, placemark.postalCode];
 }
 
 
